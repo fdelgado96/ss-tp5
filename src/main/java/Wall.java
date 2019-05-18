@@ -39,8 +39,9 @@ public class Wall {
         return overlap >= 0 ? overlap : 0;
     }
 
+    //TODO: Arreglar projección sobre versores normales mal hecha
     public double getNormalRelVel(Particle particle) {
-        return particle.vx  * enx + particle.vy * eny;
+        return particle.vx /enx + particle.vy /eny;
     }
 
 

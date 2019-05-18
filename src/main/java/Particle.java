@@ -68,6 +68,11 @@ public class Particle {
         return dx*dx + dy*dy > rMin*rMin;
     }
 
+    //TODO: Arreglar projección sobre versores normales mal hecha
+    public double getNormalRelVel(Particle p2) {
+        return ((vx - p2.vx) * enx(p2)) + ((vy - p2.vy) * eny(p2));
+    }
+
 //    private double[] closestWallXY(Wall wall) {
 //        double wx = 0, wy = 0;
 //        if (wall.horizontal) {
