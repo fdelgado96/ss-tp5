@@ -23,6 +23,8 @@ public class Simulation {
     private static final double ANIMATION_DT = 1 / 24;          // DT to save a simulation state
     private static final double MEASURE_DT = 60;                // DT to save a simulation state
     private static final double MAX_SIM_TIME = 100;             // Max simulation time in seconds
+    private static final int    MAX_ATTEMPTS = 200;             // Maximum number of insertion attempts on system initialization
+    private static final boolean USE_MAX_ATTEMPTS = true;               // True if particles should be inserted until filled, false if number of particles should be used.
 
     private static double              simTime = 0; //Simulation time in seconds
     private static List<Particle> particles = new ArrayList<>(N);
@@ -172,17 +174,38 @@ public class Simulation {
     }
 
     private static void initParticles(int n, double width, double height, double minRadius, double maxRadius) {
-        while (particles.size() < n) {
-            double particleRadius = minRadius + Math.random() * (maxRadius - minRadius);
-            double x = particleRadius + Math.random() * (width - 2 * particleRadius);
-            double y = particleRadius + Math.random() * (height - 2 * particleRadius);
 
-            Particle newParticle = new Particle(particles.size(), x, y, particleRadius);
+        int attempts = 0;
+        if(USE_MAX_ATTEMPTS){
+            while(attempts <= MAX_ATTEMPTS){
+                attempts++;
+                double particleRadius = minRadius + Math.random() * (maxRadius - minRadius);
+                double x = particleRadius + Math.random() * (width - 2 * particleRadius);
+                double y = particleRadius + Math.random() * (height - 2 * particleRadius);
 
-            boolean valid = particles.stream().parallel().allMatch(p -> p.getOverlap(newParticle) == 0);
+                Particle newParticle = new Particle(particles.size(), x, y, particleRadius);
 
-            if (valid) {
-                particles.add(newParticle);
+                boolean valid = particles.stream().parallel().allMatch(p -> p.getOverlap(newParticle) == 0);
+
+                if (valid) {
+                    particles.add(newParticle);
+                    attempts= 0;
+                }
+            }
+        }
+        else {
+            while (particles.size() < n) {
+                double particleRadius = minRadius + Math.random() * (maxRadius - minRadius);
+                double x = particleRadius + Math.random() * (width - 2 * particleRadius);
+                double y = particleRadius + Math.random() * (height - 2 * particleRadius);
+
+                Particle newParticle = new Particle(particles.size(), x, y, particleRadius);
+
+                boolean valid = particles.stream().parallel().allMatch(p -> p.getOverlap(newParticle) == 0);
+
+                if (valid) {
+                    particles.add(newParticle);
+                }
             }
         }
     }
