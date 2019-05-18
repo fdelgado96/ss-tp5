@@ -18,7 +18,6 @@ public class Simulation {
     private static final double MIN_PARTICLE_R = 0.01;          // Min particle radius
     private static final double MAX_PARTICLE_R = 0.015;         // Max particle radius
     private static final double RM = 1;                         // Min initial distance between particles
-    private static final double R_MAX_SQ = 25;                  // Max interaction distance (squared)
     private static final double ANIMATION_DT = 1 / 24;          // DT to save a simulation state
     private static final double MAX_SIM_TIME = 100;             // Max simulation time in seconds
 
@@ -44,8 +43,7 @@ public class Simulation {
                 p.clearForces();
                 p.fy += G;
                 for (Wall w : walls) {
-                    double dist_sq = w.distance_sq(p);
-                    if (dist_sq <= R_MAX_SQ) {
+                    if (p.getOverlap(w) > 0) {
                         applyForce(w, p);
                     }
                 }
@@ -58,15 +56,16 @@ public class Simulation {
                 for (int j = i + 1; j < particles.size(); j++) {
                     Particle pj = particles.get(j);
 
-                    double dist_sq = pi.centerDistanceSQ(pj);
-                    if (dist_sq <= R_MAX_SQ) {
+                    if (pi.getOverlap(pj) > 0) {
                         applyForce(pi, pj);
                     }
                 }
             });
 
             // Move particles a DT time
-            particles.stream().parallel().forEach(p -> p.move(DT));
+            particles.stream().parallel().peek(p -> {
+                p.move(DT);
+            }).filter(Simulation::isOut).forEach(Simulation::reinsert);
 
             // Add DT to simulation time
             simTime += DT;
@@ -76,10 +75,18 @@ public class Simulation {
                 lastFrame++;
             }
         }
-        System.out.println("Simulation ended");
+        System.out.println("Finished simulation");
+        writer.close();
 
     }
 
+    private static void reinsert(Particle p) {
+
+    }
+
+    private static boolean isOut(Particle p) {
+        return p.y < 0;
+    }
 
     private static void applyForce(Particle p1, Particle p2) {
 
@@ -101,7 +108,7 @@ public class Simulation {
         p2.fy += fy;
     }
 
-    private static void applyForce(Wall wall, Particle p2, double distSQ) {
+    private static void applyForce(Wall wall, Particle p2) {
     }
 
     private static void initWalls(double width, double height, double slitSize) {
