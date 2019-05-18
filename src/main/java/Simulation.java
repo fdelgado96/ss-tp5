@@ -17,7 +17,6 @@ public class Simulation {
     private static final double gamma = 70;
     private static final double MIN_PARTICLE_R = 0.01;          // Min particle radius
     private static final double MAX_PARTICLE_R = 0.015;         // Max particle radius
-    private static final double RM = 1;                         // Min initial distance between particles
     private static final double ANIMATION_DT = 1 / 24;          // DT to save a simulation state
     private static final double MAX_SIM_TIME = 100;             // Max simulation time in seconds
 
@@ -32,7 +31,7 @@ public class Simulation {
         saveState(particles);
 
         initWalls(WIDTH, HEIGHT, SLIT_SIZE);
-        initParticles(N, WIDTH, HEIGHT, RM, MIN_PARTICLE_R, MAX_PARTICLE_R);
+        initParticles(N, WIDTH, HEIGHT, MIN_PARTICLE_R, MAX_PARTICLE_R);
 
         int lastFrame = 1;
         System.out.println("Starting simulation");
@@ -83,11 +82,18 @@ public class Simulation {
     }
 
     private static void reinsert(Particle p) {
+        p.clearVelocities();
 
+        boolean valid = false;
+        while (!valid) {
+            p.x = Math.random() * (WIDTH - 2 * p.r);
+            p.y = HEIGHT - HEIGHT / 3 + Math.random() * (HEIGHT / 3 - 2 * p.r);
+            valid = particles.stream().parallel().allMatch(p2 -> p2.getOverlap(p) == 0);
+        }
     }
 
     private static boolean isOut(Particle p) {
-        return p.y < 0;
+        return p.y <= - HEIGHT / 10;
     }
 
     private static void applyForce(Particle p1, Particle p2) {
@@ -136,15 +142,15 @@ public class Simulation {
         walls.add(new Wall(width / 2, (height + slitSize) / 2, width / 2, height));
     }
 
-    private static void initParticles(int n, double width, double height, double rMinDistance, double minRadius, double maxRadius) {
+    private static void initParticles(int n, double width, double height, double minRadius, double maxRadius) {
         while (particles.size() < n) {
-            double x = rMinDistance + Math.random() * (width / 2 - 2 * rMinDistance);
-            double y = rMinDistance + Math.random() * (height - 2 * rMinDistance);
             double particleRadius = minRadius + Math.random() * (maxRadius - minRadius);
+            double x = Math.random() * (width - 2 * particleRadius);
+            double y = Math.random() * (height - 2 * particleRadius);
 
             Particle newParticle = new Particle(particles.size(), x, y, particleRadius);
 
-            boolean valid = particles.stream().parallel().allMatch(p -> p.isValid(newParticle, rMinDistance));
+            boolean valid = particles.stream().parallel().allMatch(p -> p.getOverlap(newParticle) == 0);
 
             if (valid) {
                 particles.add(newParticle);

@@ -27,13 +27,14 @@ public class Particle {
         return Math.sqrt(Math.pow(other.x - x, 2) + Math.pow(other.y - y, 2));
     }
 
-    public double centerDistanceSQ(Particle other){
-        return Math.pow(other.x - x, 2) + Math.pow(other.y - y, 2);
-    }
-
     public void clearForces() {
         fx = 0;
         fy = 0;
+    }
+
+    public void clearVelocities() {
+        vx = 0;
+        vy = 0;
     }
 
     public double enx(Particle other) {
@@ -73,27 +74,5 @@ public class Particle {
         return ((vx - p2.vx) * enx(p2)) + ((vy - p2.vy) * eny(p2));
     }
 
-//    private double[] closestWallXY(Wall wall) {
-//        double wx = 0, wy = 0;
-//        if (wall.horizontal) {
-//            wx = x1 - p.x;
-//            double lower = y1 < y2 ? y1 : y2;
-//            double upper = y1 < y2 ? y2 : y1;
-//            if (p.y < lower) {
-//                wy = lower - p.y;
-//            } else if (p.y > upper) {
-//                wy = upper - p.y;
-//            }
-//        } else {
-//            dy = y1 - p.y;
-//            double lower = x1 < x2 ? x1 : x2;
-//            double upper = x1 < x2 ? x2 : x1;
-//            if (p.x < lower) {
-//                dx = lower - p.x;
-//            } else if (p.x > upper) {
-//                dx = upper - p.x;
-//            }
-//        }
-//        return new double[2](){wx, wy};
-//    }
+
 }
