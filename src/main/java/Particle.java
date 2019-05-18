@@ -1,7 +1,8 @@
 public class Particle {
 
-    public double x, y, vx, vy, fx, fy, m = 0.01, prev_x, prev_y, r;
+    public double x, y, vx, vy, fx, fy, m = 0.01, prevX, prevY, r;
 
+    private boolean initialized = false;
     private int id;
 
     public Particle(int id, double x, double y, double r) {
@@ -32,12 +33,45 @@ public class Particle {
         return Math.sqrt(Math.pow(other.x - x, 2) + Math.pow(other.y - y, 2));
     }
 
+    public double centerDistanceSQ(Particle other){
+        return Math.pow(other.x - x, 2) + Math.pow(other.y - y, 2);
+    }
+
+    public void clearForces() {
+        fx = 0;
+        fy = 0;
+    }
+
     public double enx(Particle other) {
         return (other.x - x)/centerDistance(other);
     }
 
     public double eny(Particle other) {
         return (other.y - y)/centerDistance(other);
+    }
+
+    public void move(double dt) {
+        if (!initialized) {
+            prevX = x - vx * dt;
+            prevY = y - vy * dt;
+            initialized = true;
+        }
+
+        double dt2  = dt*dt;
+        double nextX = 2*x - prevX + fx * dt2 / m;
+        double nextY = 2*y - prevY + fy * dt2 / m;
+
+        prevX = x;
+        prevY = y;
+        x = nextX;
+        y = nextY;
+    }
+
+    public boolean isValid(Particle other, double rMin) {
+        double dx = other.x - x;
+        double dy = other.y - y;
+
+        return dx*dx + dy*dy > rMin*rMin;
     }
 
 //    private double[] closestWallXY(Wall wall) {
