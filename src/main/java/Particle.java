@@ -17,15 +17,9 @@ public class Particle {
         return overlap >= 0 ? overlap : 0;
     }
 
+
     public double getOverlap(Particle other) {
         double overlap = r + other.r - centerDistance(other);
-        return overlap >= 0 ? overlap : 0;
-    }
-
-    public double getOverlap(Wall wall) {
-        double closestWallX = 1;
-        double closestWallY = 1;
-        double overlap = r - Math.sqrt(Math.pow(closestWallX, 2) + Math.pow(closestWallY, 2));
         return overlap >= 0 ? overlap : 0;
     }
 
