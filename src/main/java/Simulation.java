@@ -110,7 +110,20 @@ public class Simulation {
         p2.fy += fy;
     }
 
-    private static void applyForce(Wall wall, Particle p2) {
+
+    private static void applyForce(Wall w, Particle p) {
+
+        double normalRelVel = w.getNormalRelVel(p);
+
+        double overlap = w.getOverlap(p);
+
+        double fn = -k*overlap - gamma*normalRelVel;
+
+        double fx = fn * w.enx;
+        double fy = fn * w.eny;
+
+        p.fx += fx;
+        p.fy += fy;
     }
 
     private static void initWalls(double width, double height, double slitSize) {
