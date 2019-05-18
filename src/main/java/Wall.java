@@ -1,18 +1,19 @@
 public class Wall {
 
-    public double initialX, initialY, finalX, finalY, enx, eny, m, c;
+    public double initialX, initialY, finalX, finalY;
+    private boolean horizontal;
 
     public Wall(double initialX, double initialY, double finalX, double finalY) {
         this.initialX = initialX;
         this.initialY = initialY;
         this.finalX = finalX;
         this.finalY = finalY;
-        this.m = finalY - initialY / finalX - initialX;
-        this.c = initialY - m*initialX;
 
-        double magnitude = Math.sqrt(Math.pow(finalX - initialX,  2) + Math.pow(finalY - initialY, 2));
-        this.enx = -(finalY - initialY)/magnitude;
-        this.eny = (finalX - initialX)/magnitude;
+        if (initialY == finalY) {
+            horizontal = true;
+        } else if (initialY != finalY) {
+            throw new RuntimeException("Diagonal walls aren't supported.");
+        }
     }
 
     private double particleCenterToWall(Particle particle) {
@@ -23,15 +24,11 @@ public class Wall {
             return particle.r+1;
         }
 
-        if(initialX == finalX){
-            return particle.x -initialX;
-        }
-
-        if(initialY == finalY) {
+        if(horizontal) {
             return particle.y -initialY;
         }
 
-        return Math.sqrt(Math.pow(particle.x - ((particle.y - c) / m),  2) + Math.pow(particle.y - (m*particle.x + c), 2));
+        return particle.x -initialX;
     }
 
     public double getOverlap(Particle particle){
@@ -40,7 +37,10 @@ public class Wall {
     }
 
     public double getNormalRelVel(Particle particle) {
-        return particle.vx * enx + particle.vy * eny;
+        if(horizontal)
+            return particle.vy;
+        else
+            return particle.vx;
     }
 
 
