@@ -41,7 +41,7 @@ public class Simulation {
             // Clear forces and add interaction forces with walls to particles and add G force too
             particles.stream().parallel().forEach(p -> {
                 p.clearForces();
-                p.fy += G;
+                p.fy += p.m * G;
                 for (Wall w : walls) {
                     if (p.getOverlap(w) > 0) {
                         applyForce(w, p);
@@ -76,7 +76,7 @@ public class Simulation {
             }
         }
         System.out.println("Finished simulation");
-        
+
         writeStates(writer);
         writer.close();
 
