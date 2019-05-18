@@ -15,7 +15,7 @@ public class Wall {
         this.eny = (finalX - initialX)/magnitude;
     }
 
-    private double centerToWall(Particle particle) {
+    private double particleCenterToWall(Particle particle) {
         if(
             Math.sqrt(Math.pow(particle.x - initialX,  2) + Math.pow(particle.y - initialY, 2)) > particle.r ||
             Math.sqrt(Math.pow(particle.x - finalX,  2) + Math.pow(particle.y - finalY, 2)) > particle.r
@@ -35,7 +35,7 @@ public class Wall {
     }
 
     public double getOverlap(Particle particle){
-        double overlap = particle.r - centerToWall(particle);
+        double overlap = particle.r - particleCenterToWall(particle);
         return overlap >= 0 ? overlap : 0;
     }
 
