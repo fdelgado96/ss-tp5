@@ -146,11 +146,10 @@ public class Simulation {
     private static void initWalls(double width, double height, double slitSize) {
         walls.add(new Wall(0, 0, 0, height));
         walls.add(new Wall(0, 0, width, 0));
-        walls.add(new Wall(0, height, width, height));
         walls.add(new Wall(width, 0, width, height));
 
-        walls.add(new Wall(width / 2, 0, width / 2, (height - slitSize) / 2));
-        walls.add(new Wall(width / 2, (height + slitSize) / 2, width / 2, height));
+//        walls.add(new Wall(width / 2, 0, width / 2, (height - slitSize) / 2));
+//        walls.add(new Wall(width / 2, (height + slitSize) / 2, width / 2, height));
     }
 
     private static void initParticles(int n, double width, double height, double minRadius, double maxRadius) {
