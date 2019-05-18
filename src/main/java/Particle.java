@@ -1,3 +1,5 @@
+import java.util.Locale;
+
 public class Particle {
 
     public double x, y, vx, vy, fx, fy, m = 0.01, prevX, prevY, r;
@@ -64,6 +66,11 @@ public class Particle {
 
     public double getNormalRelVel(Particle p2) {
         return ((vx - p2.vx) * enx(p2)) + ((vy - p2.vy) * eny(p2));
+    }
+
+    @Override
+    public String toString() {
+        return String.format(Locale.ENGLISH, "%d %.12f %.12f", id, x, y);
     }
 
 

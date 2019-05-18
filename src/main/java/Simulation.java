@@ -8,7 +8,7 @@ import java.util.stream.IntStream;
 public class Simulation {
 
     private static final int    BASE = 5;                       // DT base
-    private static final int    EXP = 4;                        // DT exp
+    private static final int    EXP = 5;                        // DT exp
     private static final double DT = BASE * Math.pow(10, -EXP); // Step delta time
     private static final int    N = 50;                         // Number of particles
     private static final double G = -10;                        // Gravity on 'y' axis
@@ -40,7 +40,7 @@ public class Simulation {
         saveMeasures();
         saveState(particles);
 
-        int lastFrame = 1, lastMeasure = 1, lastCheck = 0;
+        int lastFrame = 1, lastMeasure = 1, lastStepPrint = 0;
         System.out.println("Starting simulation");
 
         List<Particle> outParticles = new ArrayList<>();
@@ -84,7 +84,10 @@ public class Simulation {
             // Add DT to simulation time
             simTime += DT;
 
-            System.out.println(String.format("simTime: %.6f", simTime));
+            if (simTime / STEP_PRINT_DT > lastStepPrint) {
+                System.out.println(String.format("simTime: %.6f", simTime));
+                lastStepPrint++;
+            }
 
             if (simTime / ANIMATION_DT > lastFrame) {
                 saveState(particles);
