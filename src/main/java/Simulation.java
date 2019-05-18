@@ -1,6 +1,8 @@
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Simulation {
@@ -8,7 +10,7 @@ public class Simulation {
     private static final int    BASE = 5;                       // DT base
     private static final int    EXP = 6;                        // DT exp
     private static final double DT = BASE * Math.pow(10, -EXP); // Step delta time
-    private static final int    N = 10;                        // Number of particles
+    private static final int    N = 1;                        // Number of particles
     private static final double G = -10;                        // Gravity on 'y' axis
     private static final double WIDTH = 0.3;
     private static final double HEIGHT = 1;
@@ -23,10 +25,10 @@ public class Simulation {
     private static final double MAX_SIM_TIME = 100;             // Max simulation time in seconds
 
     private static double              simTime = 0; //Simulation time in seconds
-    private static ArrayList<Particle> particles = new ArrayList<>(N);
+    private static List<Particle> particles = new ArrayList<>(N);
     private static ArrayList<Wall>     walls = new ArrayList<>(4);
 
-    private static ArrayList<ArrayList<Particle>> savedStates = new ArrayList<>();
+    private static List<List<Particle>> savedStates = new ArrayList<>();
     private static ArrayList<Double> kineticEnergy = new ArrayList<>();
 
     public static void main(String[] args) throws Exception{
@@ -40,6 +42,8 @@ public class Simulation {
 
         int lastFrame = 1, lastMeasure = 1, lastCheck = 0;
         System.out.println("Starting simulation");
+
+        List<Particle> outParticles = new ArrayList<>();
 
         while(simTime < MAX_SIM_TIME) {
             // Clear forces and add interaction forces with walls to particles and add G force too
@@ -66,10 +70,16 @@ public class Simulation {
                 }
             });
 
-            // Move particles a DT time
-            particles.stream().parallel().peek(p -> {
+            // Move particles a DT time and filter the ones that are out
+            outParticles = particles.stream().parallel().peek(p -> {
                 p.move(DT);
-            }).filter(Simulation::isOut).forEach(Simulation::reinsert);
+            }).filter(Simulation::isOut).collect(Collectors.toList());
+
+            // Get all in particles
+            particles = particles.stream().parallel().filter(Simulation::isIn).collect(Collectors.toList());
+
+            // For each out particle reinsert it on top comparing to in particles
+            outParticles.stream().parallel().forEach(Simulation::reinsert);
 
             // Add DT to simulation time
             simTime += DT;
@@ -105,10 +115,15 @@ public class Simulation {
             p.y = p.r + (4/3) * HEIGHT + Math.random() * (HEIGHT / 3 - 2 * p.r);
             valid = particles.stream().parallel().allMatch(p2 -> p2.getOverlap(p) == 0);
         }
+        particles.add(p);
     }
 
     private static boolean isOut(Particle p) {
         return p.y <= - HEIGHT / 10;
+    }
+
+    private static boolean isIn(Particle p) {
+        return !isOut(p);
     }
 
     private static void applyForce(Particle p1, Particle p2) {
@@ -186,7 +201,7 @@ public class Simulation {
         kineticEnergy.add(particles.parallelStream().map(Particle::kineticEnergy).reduce(0.0, (d1, d2) -> d1 + d2));
     }
 
-    private static void saveState(ArrayList<Particle> particles) {
+    private static void saveState(List<Particle> particles) {
         savedStates.add(particles);
     }
 
