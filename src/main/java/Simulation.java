@@ -6,17 +6,18 @@ import java.util.stream.IntStream;
 public class Simulation {
 
     private static final int    BASE = 5;                       // DT base
-    private static final int    EXP = 4;                        // DT exp
+    private static final int    EXP = 6;                        // DT exp
     private static final double DT = BASE * Math.pow(10, -EXP); // Step delta time
-    private static final int    N = 100;                        // Number of particles
+    private static final int    N = 10;                        // Number of particles
     private static final double G = -10;                        // Gravity on 'y' axis
-    private static final double WIDTH = 400;
-    private static final double HEIGHT = 200;
-    private static final double SLIT_SIZE = 10;
+    private static final double WIDTH = 0.3;
+    private static final double HEIGHT = 1;
+    private static final double SLIT_SIZE = 0.15;
     private static final double k = 10e5;
     private static final double gamma = 70;
     private static final double MIN_PARTICLE_R = 0.01;          // Min particle radius
     private static final double MAX_PARTICLE_R = 0.015;         // Max particle radius
+    private static final double STEP_PRINT_DT = 1;
     private static final double ANIMATION_DT = 1 / 24;          // DT to save a simulation state
     private static final double MEASURE_DT = 60;                // DT to save a simulation state
     private static final double MAX_SIM_TIME = 100;             // Max simulation time in seconds
@@ -37,7 +38,7 @@ public class Simulation {
         saveMeasures();
         saveState(particles);
 
-        int lastFrame = 1, lastMeasure = 1;
+        int lastFrame = 1, lastMeasure = 1, lastCheck = 0;
         System.out.println("Starting simulation");
 
         while(simTime < MAX_SIM_TIME) {
@@ -73,6 +74,8 @@ public class Simulation {
             // Add DT to simulation time
             simTime += DT;
 
+            System.out.println(String.format("simTime: %.6f", simTime));
+
             if (simTime / ANIMATION_DT > lastFrame) {
                 saveState(particles);
                 lastFrame++;
@@ -83,6 +86,7 @@ public class Simulation {
                 lastMeasure++;
             }
         }
+        saveMeasures();
         System.out.println("Finished simulation");
 
         writeStates(writer);
@@ -97,8 +101,8 @@ public class Simulation {
 
         boolean valid = false;
         while (!valid) {
-            p.x = p.r + Math.random() * (WIDTH - p.r);
-            p.y = p.r + (4/3) * HEIGHT + Math.random() * (HEIGHT / 3 - p.r);
+            p.x = p.r + Math.random() * (WIDTH - 2 * p.r);
+            p.y = p.r + (4/3) * HEIGHT + Math.random() * (HEIGHT / 3 - 2 * p.r);
             valid = particles.stream().parallel().allMatch(p2 -> p2.getOverlap(p) == 0);
         }
     }
@@ -155,8 +159,8 @@ public class Simulation {
     private static void initParticles(int n, double width, double height, double minRadius, double maxRadius) {
         while (particles.size() < n) {
             double particleRadius = minRadius + Math.random() * (maxRadius - minRadius);
-            double x = particleRadius + Math.random() * (width - particleRadius);
-            double y = particleRadius + Math.random() * (height - particleRadius);
+            double x = particleRadius + Math.random() * (width - 2 * particleRadius);
+            double y = particleRadius + Math.random() * (height - 2 * particleRadius);
 
             Particle newParticle = new Particle(particles.size(), x, y, particleRadius);
 

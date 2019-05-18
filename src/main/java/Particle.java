@@ -12,11 +12,6 @@ public class Particle {
         this.id = id;
     }
 
-    public double getRelVel(Particle other) {
-        double overlap = r + other.r - centerDistance(other);
-        return overlap >= 0 ? overlap : 0;
-    }
-
 
     public double getOverlap(Particle other) {
         double overlap = r + other.r - centerDistance(other);
@@ -66,12 +61,6 @@ public class Particle {
         y = nextY;
     }
 
-    public boolean isValid(Particle other, double rMin) {
-        double dx = other.x - x;
-        double dy = other.y - y;
-
-        return dx*dx + dy*dy > rMin*rMin;
-    }
 
     public double getNormalRelVel(Particle p2) {
         return ((vx - p2.vx) * enx(p2)) + ((vy - p2.vy) * eny(p2));
