@@ -70,7 +70,7 @@ public class Particle {
 
     @Override
     public String toString() {
-        return String.format(Locale.ENGLISH, "%d %.12f %.12f", id, x, y);
+        return String.format(Locale.ENGLISH, "%d %.12f %.12f %.4f", id, x, y, r);
     }
 
 

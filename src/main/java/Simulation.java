@@ -1,5 +1,6 @@
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -10,7 +11,7 @@ public class Simulation {
     private static final int    BASE = 5;                       // DT base
     private static final int    EXP = 5;                        // DT exp
     private static final double DT = BASE * Math.pow(10, -EXP); // Step delta time
-    private static final int    N = 50;                         // Number of particles
+    private static final int    N = 10;                         // Number of particles
     private static final double G = -10;                        // Gravity on 'y' axis
     private static final double WIDTH = 0.3;
     private static final double HEIGHT = 1;
@@ -20,9 +21,9 @@ public class Simulation {
     private static final double MIN_PARTICLE_R = 0.01;          // Min particle radius
     private static final double MAX_PARTICLE_R = 0.015;         // Max particle radius
     private static final double STEP_PRINT_DT = 1;
-    private static final double ANIMATION_DT = 1 / 24;          // DT to save a simulation state
+    private static final double ANIMATION_DT = 1 / 10;          // DT to save a simulation state
     private static final double MEASURE_DT = 60;                // DT to save a simulation state
-    private static final double MAX_SIM_TIME = 100;             // Max simulation time in seconds
+    private static final double MAX_SIM_TIME = 20;             // Max simulation time in seconds
 
     private static double              simTime = 0; //Simulation time in seconds
     private static List<Particle> particles = new ArrayList<>(N);
@@ -38,7 +39,7 @@ public class Simulation {
         initParticles(N, WIDTH, HEIGHT, MIN_PARTICLE_R, MAX_PARTICLE_R);
 
         saveMeasures();
-        saveState(particles);
+        writeState(writer);
 
         int lastFrame = 1, lastMeasure = 1, lastStepPrint = 0;
         System.out.println("Starting simulation");
@@ -90,7 +91,7 @@ public class Simulation {
             }
 
             if (simTime / ANIMATION_DT > lastFrame) {
-                saveState(particles);
+                writeState(writer);
                 lastFrame++;
             }
 
@@ -102,7 +103,7 @@ public class Simulation {
         saveMeasures();
         System.out.println("Finished simulation");
 
-        writeStates(writer);
+        System.out.println("Printing measures");
         writer.close();
 
         printList(kineticEnergy, "data/" + N + "_" + BASE + "e-" + EXP + "_kineticEnergy.csv");
@@ -204,17 +205,11 @@ public class Simulation {
         kineticEnergy.add(particles.parallelStream().map(Particle::kineticEnergy).reduce(0.0, (d1, d2) -> d1 + d2));
     }
 
-    private static void saveState(List<Particle> particles) {
-        savedStates.add(particles);
-    }
-
-    private static void writeStates(PrintWriter writer) {
-        savedStates.forEach(state -> {
-            writer.println(particles.size() + 2);
-            writer.println();
-            writer.println("-2 0.0 0.0 0.00000001 0.0 0.0");
-            writer.println(String.format(Locale.ENGLISH, "-1 %f %f 0.00000001 0.0 0.0", WIDTH, HEIGHT));
-            particles.stream().parallel().forEach(writer::println);
-        });
+    private static void writeState(PrintWriter writer) {
+        writer.println(particles.size() + 2);
+        writer.println();
+        writer.println("-2 0.0 0.0 0.00000001 0.0 0.0");
+        writer.println(String.format(Locale.ENGLISH, "-1 %f %f 0.00000001 0.0 0.0", WIDTH, HEIGHT));
+        particles.stream().parallel().forEach(writer::println);
     }
 }
