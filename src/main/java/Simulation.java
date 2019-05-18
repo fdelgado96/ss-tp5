@@ -8,9 +8,9 @@ import java.util.stream.IntStream;
 public class Simulation {
 
     private static final int    BASE = 5;                       // DT base
-    private static final int    EXP = 6;                        // DT exp
+    private static final int    EXP = 4;                        // DT exp
     private static final double DT = BASE * Math.pow(10, -EXP); // Step delta time
-    private static final int    N = 1;                        // Number of particles
+    private static final int    N = 50;                         // Number of particles
     private static final double G = -10;                        // Gravity on 'y' axis
     private static final double WIDTH = 0.3;
     private static final double HEIGHT = 1;
@@ -79,7 +79,7 @@ public class Simulation {
             particles = particles.stream().parallel().filter(Simulation::isIn).collect(Collectors.toList());
 
             // For each out particle reinsert it on top comparing to in particles
-            outParticles.stream().parallel().forEach(Simulation::reinsert);
+            outParticles.stream().forEach(Simulation::reinsert);
 
             // Add DT to simulation time
             simTime += DT;
