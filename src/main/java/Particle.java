@@ -45,6 +45,10 @@ public class Particle {
         return (other.y - y)/centerDistance(other);
     }
 
+    public double kineticEnergy() {
+        return 0.5 * m * (vx*vx + vy*vy);
+    }
+
     public void move(double dt) {
         if (!initialized) {
             prevX = x - vx * dt;

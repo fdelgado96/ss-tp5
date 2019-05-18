@@ -18,6 +18,7 @@ public class Simulation {
     private static final double MIN_PARTICLE_R = 0.01;          // Min particle radius
     private static final double MAX_PARTICLE_R = 0.015;         // Max particle radius
     private static final double ANIMATION_DT = 1 / 24;          // DT to save a simulation state
+    private static final double MEASURE_DT = 60;                // DT to save a simulation state
     private static final double MAX_SIM_TIME = 100;             // Max simulation time in seconds
 
     private static double              simTime = 0; //Simulation time in seconds
@@ -25,15 +26,18 @@ public class Simulation {
     private static ArrayList<Wall>     walls = new ArrayList<>(4);
 
     private static ArrayList<ArrayList<Particle>> savedStates = new ArrayList<>();
+    private static ArrayList<Double> kineticEnergy = new ArrayList<>();
 
     public static void main(String[] args) throws Exception{
         PrintWriter writer = new PrintWriter("data/" + N + "_" + BASE + "e-" + EXP + "_simulation.xyz");
-        saveState(particles);
 
         initWalls(WIDTH, HEIGHT, SLIT_SIZE);
         initParticles(N, WIDTH, HEIGHT, MIN_PARTICLE_R, MAX_PARTICLE_R);
 
-        int lastFrame = 1;
+        saveMeasures();
+        saveState(particles);
+
+        int lastFrame = 1, lastMeasure = 1;
         System.out.println("Starting simulation");
 
         while(simTime < MAX_SIM_TIME) {
@@ -73,11 +77,18 @@ public class Simulation {
                 saveState(particles);
                 lastFrame++;
             }
+
+            if (simTime / MEASURE_DT > lastMeasure) {
+                saveMeasures();
+                lastMeasure++;
+            }
         }
         System.out.println("Finished simulation");
 
         writeStates(writer);
         writer.close();
+
+        printList(kineticEnergy, "data/" + N + "_" + BASE + "e-" + EXP + "_kineticEnergy.csv");
 
     }
 
@@ -156,6 +167,20 @@ public class Simulation {
                 particles.add(newParticle);
             }
         }
+    }
+
+    private static void printList(ArrayList<Double> list, String filename) {
+        try {
+            PrintWriter writer = new PrintWriter(filename);
+            list.forEach(writer::println);
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void saveMeasures() {
+        kineticEnergy.add(particles.parallelStream().map(Particle::kineticEnergy).reduce(0.0, (d1, d2) -> d1 + d2));
     }
 
     private static void saveState(ArrayList<Particle> particles) {
