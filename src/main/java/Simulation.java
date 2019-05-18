@@ -95,11 +95,11 @@ public class Simulation {
         double enx = p1.enx(p2);
         double eny = p1.eny(p2);
 
-        double relVel = p1.getRelVel(p2);
+        double normalRelVel = p1.getNormalRelVel(p2);
 
         double overlap = p1.getOverlap(p2);
 
-        double fn = -k*overlap - gamma*relVel;
+        double fn = -k*overlap - gamma*normalRelVel;
 
         double fx = fn * enx;
         double fy = fn * eny;
