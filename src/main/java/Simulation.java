@@ -76,6 +76,8 @@ public class Simulation {
             }
         }
         System.out.println("Finished simulation");
+        
+        writeStates(writer);
         writer.close();
 
     }
@@ -141,7 +143,7 @@ public class Simulation {
         savedStates.add(particles);
     }
 
-    private static void writeStates(PrintWriter writer, ArrayList<Particle> particles) {
+    private static void writeStates(PrintWriter writer) {
         savedStates.forEach(state -> {
             writer.println(particles.size() + 2);
             writer.println();
