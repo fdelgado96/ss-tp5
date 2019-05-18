@@ -42,7 +42,7 @@ public class Simulation {
                 p.clearForces();
                 p.fy += p.m * G;
                 for (Wall w : walls) {
-                    if (p.getOverlap(w) > 0) {
+                    if (w.getOverlap(p) > 0) {
                         applyForce(w, p);
                     }
                 }
@@ -86,8 +86,8 @@ public class Simulation {
 
         boolean valid = false;
         while (!valid) {
-            p.x = Math.random() * (WIDTH - 2 * p.r);
-            p.y = HEIGHT - HEIGHT / 3 + Math.random() * (HEIGHT / 3 - 2 * p.r);
+            p.x = p.r + Math.random() * (WIDTH - p.r);
+            p.y = p.r + (4/3) * HEIGHT + Math.random() * (HEIGHT / 3 - p.r);
             valid = particles.stream().parallel().allMatch(p2 -> p2.getOverlap(p) == 0);
         }
     }
@@ -145,8 +145,8 @@ public class Simulation {
     private static void initParticles(int n, double width, double height, double minRadius, double maxRadius) {
         while (particles.size() < n) {
             double particleRadius = minRadius + Math.random() * (maxRadius - minRadius);
-            double x = Math.random() * (width - 2 * particleRadius);
-            double y = Math.random() * (height - 2 * particleRadius);
+            double x = particleRadius + Math.random() * (width - particleRadius);
+            double y = particleRadius + Math.random() * (height - particleRadius);
 
             Particle newParticle = new Particle(particles.size(), x, y, particleRadius);
 
