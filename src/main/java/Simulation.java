@@ -11,7 +11,7 @@ public class Simulation {
     private static final int    BASE = 5;                       // DT base
     private static final int    EXP = 6;                        // DT exp
     private static final double DT = BASE * Math.pow(10, -EXP); // Step delta time
-    private static final int    N = 100;                         // Number of particles
+    private static final int    N = 300;                         // Number of particles
     private static final double G = -10;                        // Gravity on 'y' axis
     private static final double WIDTH = 0.3;
     private static final double HEIGHT = 1;
@@ -23,7 +23,7 @@ public class Simulation {
     private static final double STEP_PRINT_DT = 1;
     private static final double ANIMATION_DT = 1.0 / 1000;          // DT to save a simulation state
     private static final double MEASURE_DT = 60;                // DT to save a simulation state
-    private static final double MAX_SIM_TIME = 5;             // Max simulation time in seconds
+    private static final double MAX_SIM_TIME = 20;             // Max simulation time in seconds
 
     private static double              simTime = 0; //Simulation time in seconds
     private static List<Particle> particles = new ArrayList<>(N);
@@ -32,7 +32,9 @@ public class Simulation {
     private static List<List<Particle>> savedStates = new ArrayList<>();
     private static ArrayList<Double> kineticEnergy = new ArrayList<>();
 
+
     public static void main(String[] args) throws Exception{
+
         PrintWriter writer = new PrintWriter("data/" + N + "_" + BASE + "e-" + EXP + "_simulation.xyz");
 
         initWalls(WIDTH, HEIGHT, SLIT_SIZE);
@@ -45,6 +47,37 @@ public class Simulation {
         System.out.println("Starting simulation");
 
         List<Particle> outParticles = new ArrayList<>();
+
+        while(simTime < MAX_SIM_TIME) {
+
+            CellIndexMethod cellIndexMethod = new CellIndexMethod(particles, 10, 10, 10);
+            cellIndexMethod.calculateForces();
+
+            simTime += DT;
+
+            if (simTime / STEP_PRINT_DT > lastStepPrint) {
+                System.out.println(String.format("simTime: %.2f", simTime));
+                lastStepPrint++;
+            }
+            if (simTime / ANIMATION_DT > lastFrame) {
+                writeState(writer);
+                lastFrame++;
+            }
+            if (simTime / MEASURE_DT > lastMeasure) {
+                saveMeasures();
+                lastMeasure++;
+            }
+
+            saveMeasures();
+            System.out.println("Finished simulation");
+            System.out.println("Printing measures");
+            writer.close();
+            printList(kineticEnergy, "data/" + N + "_" + BASE + "e-" + EXP + "_kineticEnergy.csv");
+        }
+
+
+
+
 
         while(simTime < MAX_SIM_TIME) {
             // Clear forces and add interaction forces with walls to particles and add G force too

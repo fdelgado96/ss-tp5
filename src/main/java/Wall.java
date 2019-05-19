@@ -12,10 +12,10 @@ public class Wall {
     }
 
     private double particleCenterToWall(Particle particle) {
-//        if (Math.sqrt(Math.pow(particle.x - initialX,  2) + Math.pow(particle.y - initialY, 2)) > particle.r &&
-//            Math.sqrt(Math.pow(particle.x - finalX,  2) + Math.pow(particle.y - finalY, 2)) > particle.r) {
-//            return particle.r+1;
-//        }
+        if (Math.pow(particle.x - initialX, 2) + Math.pow(particle.y - initialY, 2) > particle.r*particle.r &&
+            Math.pow(particle.x - finalX, 2) + Math.pow(particle.y - finalY, 2) > particle.r*particle.r) {
+            return particle.r+1;
+        }
 
         if (initialX == finalX) {
             return Math.abs(particle.x - initialX);
