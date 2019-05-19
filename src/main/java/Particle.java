@@ -32,6 +32,9 @@ public class Particle {
     public void clearVelocities() {
         vx = 0;
         vy = 0;
+        prevX = x;
+        prevY = y;
+        initialized = false;
     }
 
     public double enx(Particle other) {
@@ -51,6 +54,9 @@ public class Particle {
             prevX = x - vx * dt;
             prevY = y - vy * dt;
             initialized = true;
+        } else {
+            vx = (x - prevX) / dt;
+            vy = (y - prevY) / dt;
         }
 
         double dt2  = dt*dt;

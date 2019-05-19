@@ -21,7 +21,7 @@ public class Simulation {
     private static final double MIN_PARTICLE_R = 0.01;          // Min particle radius
     private static final double MAX_PARTICLE_R = 0.015;         // Max particle radius
     private static final double STEP_PRINT_DT = 1;
-    private static final double ANIMATION_DT = 1 / 10;          // DT to save a simulation state
+    private static final double ANIMATION_DT = 1.0 / 60;          // DT to save a simulation state
     private static final double MEASURE_DT = 60;                // DT to save a simulation state
     private static final double MAX_SIM_TIME = 20;             // Max simulation time in seconds
 
@@ -77,7 +77,7 @@ public class Simulation {
             }).filter(Simulation::isOut).collect(Collectors.toList());
 
             // Get all in particles
-            particles = particles.stream().parallel().filter(Simulation::isIn).collect(Collectors.toList());
+            //particles = particles.stream().parallel().filter(Simulation::isIn).collect(Collectors.toList());
 
             // For each out particle reinsert it on top comparing to in particles
             outParticles.stream().forEach(Simulation::reinsert);
@@ -86,7 +86,7 @@ public class Simulation {
             simTime += DT;
 
             if (simTime / STEP_PRINT_DT > lastStepPrint) {
-                System.out.println(String.format("simTime: %.6f", simTime));
+                System.out.println(String.format("simTime: %.2f", simTime));
                 lastStepPrint++;
             }
 
@@ -116,10 +116,10 @@ public class Simulation {
         boolean valid = false;
         while (!valid) {
             p.x = p.r + Math.random() * (WIDTH - 2 * p.r);
-            p.y = p.r + (4/3) * HEIGHT + Math.random() * (HEIGHT / 3 - 2 * p.r);
-            valid = particles.stream().parallel().allMatch(p2 -> p2.getOverlap(p) == 0);
+            p.y = (2 + Math.random()) * HEIGHT / 3;
+            valid = particles.stream().parallel().allMatch(p2 -> p2 == p || p2.getOverlap(p) == 0);
         }
-        particles.add(p);
+        //particles.add(p);
     }
 
     private static boolean isOut(Particle p) {
@@ -144,12 +144,11 @@ public class Simulation {
         double fx = fn * enx;
         double fy = fn * eny;
 
-        p1.fx -= fx;
-        p1.fy -= fy;
-        p2.fx += fx;
-        p2.fy += fy;
+        p1.fx += fx;
+        p1.fy += fy;
+        p2.fx -= fx;
+        p2.fy -= fy;
     }
-
 
     private static void applyForce(Wall w, Particle p) {
 
