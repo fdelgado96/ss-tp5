@@ -1,35 +1,27 @@
 public class Wall {
 
-    public double initialX, initialY, finalX, finalY, enx, eny, m, c;
+    public double initialX, initialY, finalX, finalY, enx, eny;
 
-    public Wall(double initialX, double initialY, double finalX, double finalY) {
+    public Wall(double initialX, double initialY, double finalX, double finalY, double enx, double eny) {
         this.initialX = initialX;
         this.initialY = initialY;
         this.finalX = finalX;
         this.finalY = finalY;
-        this.m = finalY - initialY / finalX - initialX;
-        this.c = initialY - m*initialX;
-
-        double magnitude = Math.sqrt(Math.pow(finalX - initialX,  2) + Math.pow(finalY - initialY, 2));
-        this.enx = -(finalY - initialY)/magnitude;
-        this.eny = (finalX - initialX)/magnitude;
+        this.enx = enx;
+        this.eny = eny;
     }
 
     private double particleCenterToWall(Particle particle) {
-        if (Math.sqrt(Math.pow(particle.x - initialX,  2) + Math.pow(particle.y - initialY, 2)) > particle.r ||
-            Math.sqrt(Math.pow(particle.x - finalX,  2) + Math.pow(particle.y - finalY, 2)) > particle.r) {
-            return particle.r+1;
-        }
+//        if (Math.sqrt(Math.pow(particle.x - initialX,  2) + Math.pow(particle.y - initialY, 2)) > particle.r &&
+//            Math.sqrt(Math.pow(particle.x - finalX,  2) + Math.pow(particle.y - finalY, 2)) > particle.r) {
+//            return particle.r+1;
+//        }
 
         if (initialX == finalX) {
-            return particle.x -initialX;
+            return Math.abs(particle.x - initialX);
         }
 
-        if (initialY == finalY) {
-            return particle.y -initialY;
-        }
-
-        return Math.sqrt(Math.pow(particle.x - ((particle.y - c) / m),  2) + Math.pow(particle.y - (m*particle.x + c), 2));
+        return Math.abs(particle.y - initialY);
     }
 
     public double getOverlap(Particle particle){
