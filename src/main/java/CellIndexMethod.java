@@ -23,10 +23,10 @@ public class CellIndexMethod {
     private static final double gamma = 70;
 
     public CellIndexMethod(List<Particle> particles, double length, double height, double interactionRadius) {
-        this.N = (int)(length/interactionRadius);
+        this.M = (int)(length/interactionRadius);
+        this.N = (int)(height*1.1/interactionRadius)+1;
         cellLength = length/N;
-        cellHeight = length/M;
-        this.M = (int)(height/interactionRadius);
+        cellHeight = height/M;
         grid = new ParticleNode[N][M];
         for(Particle p : particles) {
             int cellXIndex = (int)(p.x/cellLength);
@@ -46,30 +46,36 @@ public class CellIndexMethod {
     }
 
     private void checkUp(int x, int y){
-        if(y > M)
+        if(outOfGrid(1, y+1) || grid[x][y+1] == null)
             return;
         check(grid[x][y], grid[x][y+1]);
     }
 
-
     private void checkUpRight(int x, int y){
-        if(y > M || x > N)
+        if(outOfGrid(0, x+1) || outOfGrid(1, y+1) || grid[x+1][y+1] == null)
             return;
         check(grid[x][y], grid[x+1][y+1]);
     }
 
-
     private void checkRight(int x, int y){
-        if(x > N)
+        if(outOfGrid(0, x+1) || grid[x+1][y] == null)
             return;
         check(grid[x][y], grid[x+1][y]);
     }
 
-
     private void checkDownRight(int x, int y){
-        if(y > M)
+        if(outOfGrid(1, y-1) || grid[x][y-1] == null)
             return;
         check(grid[x][y], grid[x][y-1]);
+
+    }
+
+    private boolean outOfGrid(int axis, int index){
+        if(axis == 0){
+            return index >= N-1 || index < 0;
+        } else {
+            return index >= M-1 || index < 0;
+        }
     }
 
     private void check(ParticleNode node, ParticleNode otherNode){
@@ -83,10 +89,13 @@ public class CellIndexMethod {
     }
 
     private void checkSelf(int x, int y){
+        if(grid[x][y] == null){
+            return;
+        }
         ParticleNode node = grid[x][y];
         int max = node.particleList.size();
         for(int i = 0; i < max; i++){
-            for(int j = i; j < max; j++){
+            for(int j = i+1; j < max; j++){
                 if (node.particleList.get(i).getOverlap(node.particleList.get(j)) > 0) {
                     applyForce(node.particleList.get(i), node.particleList.get(j));
                 }
@@ -95,6 +104,8 @@ public class CellIndexMethod {
     }
 
     private static void applyForce(Particle p1, Particle p2) {
+
+        System.out.println(String.format("time: %f - p1: %d - p2: %d", Simulation.simTime, p1.id, p2.id));
 
         double enx = p1.enx(p2);
         double eny = p1.eny(p2);
@@ -114,26 +125,13 @@ public class CellIndexMethod {
         p2.fy -= fy;
     }
 
-    private static void applyForce(Wall w, Particle p) {
-
-        double normalRelVel = w.getNormalRelVel(p);
-
-        double overlap = w.getOverlap(p);
-
-        double fn = -k*overlap - gamma*normalRelVel;
-
-        double fx = fn * w.enx;
-        double fy = fn * w.eny;
-
-
-        p.fx -= fx;
-        p.fy -= fy;
-    }
-
 
     public void calculateForces() {
         for(int i = 0; i < N; i++){
             for(int j = 0; j < M; j++){
+                if(grid[i][j] == null)
+                    continue;
+
                 checkSelf(i, j);
                 checkUp(i, j);
                 checkUpRight(i, j);

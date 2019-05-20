@@ -11,7 +11,7 @@ public class Simulation {
     private static final int    BASE = 5;                       // DT base
     private static final int    EXP = 6;                        // DT exp
     private static final double DT = BASE * Math.pow(10, -EXP); // Step delta time
-    private static final int    N = 300;                         // Number of particles
+    private static final int    N = 5;                         // Number of particles
     private static final double G = -10;                        // Gravity on 'y' axis
     private static final double WIDTH = 0.3;
     private static final double HEIGHT = 1;
@@ -23,9 +23,9 @@ public class Simulation {
     private static final double STEP_PRINT_DT = 1;
     private static final double ANIMATION_DT = 1.0 / 1000;          // DT to save a simulation state
     private static final double MEASURE_DT = 60;                // DT to save a simulation state
-    private static final double MAX_SIM_TIME = 20;             // Max simulation time in seconds
+    private static final double MAX_SIM_TIME = 5;             // Max simulation time in seconds
 
-    private static double              simTime = 0; //Simulation time in seconds
+    public static double              simTime = 0; //Simulation time in seconds
     private static List<Particle> particles = new ArrayList<>(N);
     private static ArrayList<Wall>     walls = new ArrayList<>(4);
 
@@ -39,7 +39,7 @@ public class Simulation {
 
         initWalls(WIDTH, HEIGHT, SLIT_SIZE);
         initParticles(N, WIDTH, HEIGHT, MIN_PARTICLE_R, MAX_PARTICLE_R);
-
+        CellIndexMethod cellIndexMethod;
         saveMeasures();
         writeState(writer);
 
@@ -49,90 +49,39 @@ public class Simulation {
         List<Particle> outParticles = new ArrayList<>();
 
         while(simTime < MAX_SIM_TIME) {
-
-            CellIndexMethod cellIndexMethod = new CellIndexMethod(particles, 10, 10, 10);
+            cellIndexMethod = new CellIndexMethod(particles, WIDTH, HEIGHT, 2*MAX_PARTICLE_R);
+            for(Particle particle : particles){
+                particle.clearForces();
+                particle.fy += particle.m * G;
+                for(Wall wall : walls){
+                    if(wall.getOverlap(particle) > 0)
+                        applyForce(wall, particle);
+                }
+            }
             cellIndexMethod.calculateForces();
 
-            simTime += DT;
-
-            if (simTime / STEP_PRINT_DT > lastStepPrint) {
-                System.out.println(String.format("simTime: %.2f", simTime));
-                lastStepPrint++;
-            }
-            if (simTime / ANIMATION_DT > lastFrame) {
-                writeState(writer);
-                lastFrame++;
-            }
-            if (simTime / MEASURE_DT > lastMeasure) {
-                saveMeasures();
-                lastMeasure++;
-            }
-
-            saveMeasures();
-            System.out.println("Finished simulation");
-            System.out.println("Printing measures");
-            writer.close();
-            printList(kineticEnergy, "data/" + N + "_" + BASE + "e-" + EXP + "_kineticEnergy.csv");
-        }
-
-
-
-
-
-        while(simTime < MAX_SIM_TIME) {
-            // Clear forces and add interaction forces with walls to particles and add G force too
-            particles.stream().parallel().forEach(p -> {
-                p.clearForces();
-                p.fy += p.m * G;
-                for (Wall w : walls) {
-                    if (w.getOverlap(p) > 0) {
-                        applyForce(w, p);
-                    }
-                }
-            });
-
-            // Add interaction forces between particles
-            IntStream.range(0, particles.size()).parallel().forEach(i -> {
-                Particle pi = particles.get(i);
-
-                for (int j = i + 1; j < particles.size(); j++) {
-                    Particle pj = particles.get(j);
-
-                    if (pi.getOverlap(pj) > 0) {
-                        applyForce(pi, pj);
-                    }
-                }
-            });
-
-            // Move particles a DT time and filter the ones that are out
             outParticles = particles.stream().parallel().peek(p -> {
                 p.move(DT);
             }).filter(Simulation::isOut).collect(Collectors.toList());
 
-            // Get all in particles
-            //particles = particles.stream().parallel().filter(Simulation::isIn).collect(Collectors.toList());
-
-            // For each out particle reinsert it on top comparing to in particles
             outParticles.stream().forEach(Simulation::reinsert);
 
-            // Add DT to simulation time
             simTime += DT;
 
             if (simTime / STEP_PRINT_DT > lastStepPrint) {
                 System.out.println(String.format("simTime: %.2f", simTime));
                 lastStepPrint++;
             }
-
             if (simTime / ANIMATION_DT > lastFrame) {
                 writeState(writer);
                 lastFrame++;
             }
-
             if (simTime / MEASURE_DT > lastMeasure) {
                 saveMeasures();
                 lastMeasure++;
             }
         }
+
         saveMeasures();
         System.out.println("Finished simulation");
 
@@ -163,25 +112,6 @@ public class Simulation {
         return !isOut(p);
     }
 
-    private static void applyForce(Particle p1, Particle p2) {
-
-        double enx = p1.enx(p2);
-        double eny = p1.eny(p2);
-
-        double normalRelVel = p1.getNormalRelVel(p2);
-
-        double overlap = p1.getOverlap(p2);
-
-        double fn = -k*overlap - gamma*normalRelVel;
-
-        double fx = fn * enx;
-        double fy = fn * eny;
-
-        p1.fx += fx;
-        p1.fy += fy;
-        p2.fx -= fx;
-        p2.fy -= fy;
-    }
 
     private static void applyForce(Wall w, Particle p) {
 
@@ -195,14 +125,14 @@ public class Simulation {
         double fy = fn * w.eny;
 
 
-        p.fx -= fx;
-        p.fy -= fy;
+        p.fx += fx;
+        p.fy += fy;
     }
 
     private static void initWalls(double width, double height, double slitSize) {
-        walls.add(new Wall(0, 0, 0, height, 1, 0));
-        walls.add(new Wall(0, 0, width, 0, 0, 1));
-        walls.add(new Wall(width, 0, width, height, -1, 0));
+        walls.add(new Wall(0, 0, 0, height, -1, 0));
+        walls.add(new Wall(0, 0, width, 0, 0, -1));
+        walls.add(new Wall(width, 0, width, height, 1, 0));
 
 //        walls.add(new Wall(width / 2, 0, width / 2, (height - slitSize) / 2));
 //        walls.add(new Wall(width / 2, (height + slitSize) / 2, width / 2, height));

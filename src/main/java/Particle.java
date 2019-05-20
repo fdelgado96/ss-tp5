@@ -7,7 +7,7 @@ public class Particle {
     public double x, y, vx, vy, fx, fy, m = 0.01, prevX, prevY, r;
 
     private boolean initialized = false;
-    private int id;
+    public int id;
 
     public Particle(int id, double x, double y, double r) {
         this.x = x;
