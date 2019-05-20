@@ -16,65 +16,65 @@ public class CellIndexMethod {
     }
 
     private int N, M; //The grid is of N rows by M columns
-    private double cellLength, cellHeight;
+    private double cellWidth, cellHeight;
     private ParticleNode[][] grid;
     private HashMap<String, ParticleNode> particleNodeMap = new HashMap<>();
     private static final double k = 10e5;
     private static final double gamma = 70;
 
-    public CellIndexMethod(List<Particle> particles, double length, double height, double interactionRadius) {
-        this.M = (int)(length/interactionRadius);
+    public CellIndexMethod(List<Particle> particles, double width, double height, double interactionRadius) {
+        this.M = (int)(width/interactionRadius);
         this.N = (int)(height*1.1/interactionRadius)+1;
-        cellLength = length/N;
-        cellHeight = height/M;
+        cellWidth = width/M;
+        cellHeight = height/N;
         grid = new ParticleNode[N][M];
         for(Particle p : particles) {
-            int cellXIndex = (int)(p.x/cellLength);
+            int cellXIndex = (int)(p.x/cellWidth);
             int cellYIndex = (int)(p.y/cellHeight);
-            ParticleNode particleNode = particleNodeMap.get(String.format("%d-%d", cellXIndex, cellYIndex));
+            ParticleNode particleNode = particleNodeMap.get(String.format("%d-%d", cellYIndex, cellXIndex));
             if(particleNode != null){
                 particleNode.particleList.add(p);
             } else {
                 LinkedList<Particle> particlesList = new LinkedList<>();
                 particlesList.add(p);
                 particleNode = new ParticleNode(particlesList);
-                particleNodeMap.put(String.format("%d-%d", cellXIndex, cellYIndex), particleNode);
+                particleNodeMap.put(String.format("%d-%d", cellYIndex, cellXIndex), particleNode);
             }
-            grid[cellXIndex][cellYIndex] = particleNode;
+            grid[cellYIndex][cellXIndex] = particleNode;
         }
 
     }
 
-    private void checkUp(int x, int y){
-        if(outOfGrid(1, y+1) || grid[x][y+1] == null)
+    private void checkUp(int y, int x){
+        if(outOfGrid(1, y+1) || grid[y+1][x] == null)
             return;
-        check(grid[x][y], grid[x][y+1]);
+        check(grid[y][x], grid[y+1][x]);
     }
 
-    private void checkUpRight(int x, int y){
-        if(outOfGrid(0, x+1) || outOfGrid(1, y+1) || grid[x+1][y+1] == null)
+    private void checkUpRight(int y, int x){
+        if(outOfGrid(0, x+1) || outOfGrid(1, y+1) || grid[y+1][x+1] == null)
             return;
-        check(grid[x][y], grid[x+1][y+1]);
+        check(grid[y][x], grid[y+1][x+1]);
     }
 
-    private void checkRight(int x, int y){
-        if(outOfGrid(0, x+1) || grid[x+1][y] == null)
+    private void checkRight(int y, int x){
+        if(outOfGrid(0, x+1) || grid[y][x+1] == null)
             return;
-        check(grid[x][y], grid[x+1][y]);
+        check(grid[y][x], grid[y][x+1]);
     }
 
-    private void checkDownRight(int x, int y){
-        if(outOfGrid(1, y-1) || grid[x][y-1] == null)
+    private void checkDownRight(int y, int x){
+        if(outOfGrid(1, y-1) || grid[y-1][x] == null)
             return;
-        check(grid[x][y], grid[x][y-1]);
+        check(grid[y][x], grid[y-1][x]);
 
     }
 
     private boolean outOfGrid(int axis, int index){
         if(axis == 0){
-            return index >= N-1 || index < 0;
+            return index >= M || index < 0;
         } else {
-            return index >= M-1 || index < 0;
+            return index >= N || index < 0;
         }
     }
 
@@ -88,11 +88,11 @@ public class CellIndexMethod {
         }
     }
 
-    private void checkSelf(int x, int y){
-        if(grid[x][y] == null){
+    private void checkSelf(int y, int x){
+        if(grid[y][x] == null){
             return;
         }
-        ParticleNode node = grid[x][y];
+        ParticleNode node = grid[y][x];
         int max = node.particleList.size();
         for(int i = 0; i < max; i++){
             for(int j = i+1; j < max; j++){
@@ -104,8 +104,6 @@ public class CellIndexMethod {
     }
 
     private static void applyForce(Particle p1, Particle p2) {
-
-        System.out.println(String.format("time: %f - p1: %d - p2: %d", Simulation.simTime, p1.id, p2.id));
 
         double enx = p1.enx(p2);
         double eny = p1.eny(p2);

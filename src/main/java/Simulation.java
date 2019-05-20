@@ -8,10 +8,10 @@ import java.util.stream.IntStream;
 
 public class Simulation {
 
-    private static final int    BASE = 5;                       // DT base
-    private static final int    EXP = 6;                        // DT exp
+    private static final int    BASE = 1;                       // DT base
+    private static final int    EXP = 5;                        // DT exp
     private static final double DT = BASE * Math.pow(10, -EXP); // Step delta time
-    private static final int    N = 5;                         // Number of particles
+    private static final int    N = 300;                         // Number of particles
     private static final double G = -10;                        // Gravity on 'y' axis
     private static final double WIDTH = 0.3;
     private static final double HEIGHT = 1;
@@ -20,10 +20,10 @@ public class Simulation {
     private static final double gamma = 70;
     private static final double MIN_PARTICLE_R = 0.01;          // Min particle radius
     private static final double MAX_PARTICLE_R = 0.015;         // Max particle radius
-    private static final double STEP_PRINT_DT = 1;
-    private static final double ANIMATION_DT = 1.0 / 1000;          // DT to save a simulation state
+    private static final double STEP_PRINT_DT = 0.1;
+    private static final double ANIMATION_DT = 1.0 / 60;          // DT to save a simulation state
     private static final double MEASURE_DT = 60;                // DT to save a simulation state
-    private static final double MAX_SIM_TIME = 5;             // Max simulation time in seconds
+    private static final double MAX_SIM_TIME = 10;             // Max simulation time in seconds
 
     public static double              simTime = 0; //Simulation time in seconds
     private static List<Particle> particles = new ArrayList<>(N);
@@ -98,7 +98,7 @@ public class Simulation {
         boolean valid = false;
         while (!valid) {
             p.x = p.r + Math.random() * (WIDTH - 2 * p.r);
-            p.y = (2 + Math.random()) * HEIGHT / 3;
+            p.y = (2 + Math.random()) * HEIGHT / 3 - MAX_PARTICLE_R*1.1;
             valid = particles.stream().parallel().allMatch(p2 -> p2 == p || p2.getOverlap(p) == 0);
         }
         //particles.add(p);
@@ -130,6 +130,8 @@ public class Simulation {
     }
 
     private static void initWalls(double width, double height, double slitSize) {
+        walls.add(new Wall(0, height, width, height, 0, 1));
+
         walls.add(new Wall(0, 0, 0, height, -1, 0));
         walls.add(new Wall(0, 0, width, 0, 0, -1));
         walls.add(new Wall(width, 0, width, height, 1, 0));
