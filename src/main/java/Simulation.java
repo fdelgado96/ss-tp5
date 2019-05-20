@@ -1,8 +1,5 @@
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -45,7 +42,8 @@ public class Simulation {
         int lastFrame = 1, lastMeasure = 1, lastStepPrint = 0;
         System.out.println("Starting simulation");
 
-        List<Particle> outParticles = new ArrayList<>();
+        List<Particle> outParticles;
+        List<Double> exitTimes = new LinkedList<>();
 
         while(simTime < MAX_SIM_TIME) {
             // Clear forces and add interaction forces with walls to particles and add G force too
@@ -80,11 +78,14 @@ public class Simulation {
             // Get all in particles
             //particles = particles.stream().parallel().filter(Simulation::isIn).collect(Collectors.toList());
 
-            // For each out particle reinsert it on top comparing to in particles
-            outParticles.stream().forEach(Simulation::reinsert);
-
             // Add DT to simulation time
             simTime += DT;
+
+            // Record exit times
+            outParticles.forEach((_) -> exitTimes.add(simTime));
+
+            // For each out particle reinsert it on top comparing to in particles
+            outParticles.forEach(Simulation::reinsert);
 
             if (simTime / STEP_PRINT_DT > lastStepPrint) {
                 System.out.println(String.format("simTime: %.2f", simTime));
@@ -108,6 +109,7 @@ public class Simulation {
         writer.close();
 
         printList(kineticEnergy, "data/" + N + "_" + BASE + "e-" + EXP + "_kineticEnergy.csv");
+        printList(exitTimes, "data/" + N + "_" + BASE + "e-" + EXP + "_exitTimes.csv");
         printList(flow, "data/" + N + "_" + BASE + "e-" + EXP + "_flow.csv");
 
     }
@@ -193,7 +195,7 @@ public class Simulation {
         }
     }
 
-    private static void printList(ArrayList<Double> list, String filename) {
+    private static void printList(List<Double> list, String filename) {
         try {
             PrintWriter writer = new PrintWriter(filename);
             list.forEach(writer::println);
