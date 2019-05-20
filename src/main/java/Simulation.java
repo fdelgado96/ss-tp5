@@ -5,12 +5,12 @@ import java.util.stream.IntStream;
 
 public class Simulation {
 
-    private static final int    BASE = 5;                       // DT base
-    private static final int    EXP = 5;                        // DT exp
+    private static final int    BASE = 3;                       // DT base
+    private static final int    EXP = 6;                        // DT exp
     private static final double DT = BASE * Math.pow(10, -EXP); // Step delta time
     private static final int    N = 100;                         // Number of particles
     private static final double G = -10;                        // Gravity on 'y' axis
-    private static final double WIDTH = 0.3;
+    private static final double WIDTH = 0.4;
     private static final double HEIGHT = 1;
     private static final double SLIT_SIZE = 0.20;
     private static final double k = 10e5;
@@ -18,9 +18,9 @@ public class Simulation {
     private static final double MIN_PARTICLE_R = 0.01;          // Min particle radius
     private static final double MAX_PARTICLE_R = 0.015;         // Max particle radius
     private static final double STEP_PRINT_DT = 1;
-    private static final double ANIMATION_DT = 1.0 / 1000;          // DT to save a simulation state
+    private static final double ANIMATION_DT = 1.0 / 60;          // DT to save a simulation state
     private static final double MEASURE_DT = 60;                // DT to save a simulation state
-    private static final double MAX_SIM_TIME = 5;             // Max simulation time in seconds
+    private static final double MAX_SIM_TIME = 10;             // Max simulation time in seconds
 
     private static double              simTime = 0; //Simulation time in seconds
     private static List<Particle> particles = new ArrayList<>(N);

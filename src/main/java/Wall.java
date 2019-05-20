@@ -18,10 +18,16 @@ public class Wall {
 //        }
 
         if (initialX == finalX) {
-            return Math.abs(particle.x - initialX);
+            if (particle.y >= initialY && particle.y <= finalY)
+                return Math.abs(particle.x - initialX);
+            else
+                return particle.r;
+        } else {
+            if (particle.x >= initialX && particle.x <= finalX)
+                return Math.abs(particle.y - initialY);
+            else
+                return particle.r;
         }
-
-        return Math.abs(particle.y - initialY);
     }
 
     public double getOverlap(Particle particle){
