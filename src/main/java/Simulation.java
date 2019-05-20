@@ -28,7 +28,6 @@ public class Simulation {
 
     private static List<List<Particle>> savedStates = new ArrayList<>();
     private static ArrayList<Double> kineticEnergy = new ArrayList<>();
-    private static ArrayList<Double> flow = new ArrayList<>();
 
     public static void main(String[] args) throws Exception{
         PrintWriter writer = new PrintWriter("data/" + N + "_" + BASE + "e-" + EXP + "_simulation.xyz");
@@ -36,7 +35,7 @@ public class Simulation {
         initWalls(WIDTH, HEIGHT, SLIT_SIZE);
         initParticles(N, WIDTH, HEIGHT, MIN_PARTICLE_R, MAX_PARTICLE_R);
 
-        saveMeasures(0);
+        saveMeasures();
         writeState(writer);
 
         int lastFrame = 1, lastMeasure = 1, lastStepPrint = 0;
@@ -82,7 +81,7 @@ public class Simulation {
             simTime += DT;
 
             // Record exit times
-            outParticles.forEach((_) -> exitTimes.add(simTime));
+            outParticles.forEach((p) -> exitTimes.add(simTime));
 
             // For each out particle reinsert it on top comparing to in particles
             outParticles.forEach(Simulation::reinsert);
@@ -98,11 +97,11 @@ public class Simulation {
             }
 
             if (simTime / MEASURE_DT > lastMeasure) {
-                saveMeasures(outParticles.size());
+                saveMeasures();
                 lastMeasure++;
             }
         }
-        saveMeasures(outParticles.size());
+        saveMeasures();
         System.out.println("Finished simulation");
 
         System.out.println("Printing measures");
@@ -110,7 +109,6 @@ public class Simulation {
 
         printList(kineticEnergy, "data/" + N + "_" + BASE + "e-" + EXP + "_kineticEnergy.csv");
         printList(exitTimes, "data/" + N + "_" + BASE + "e-" + EXP + "_exitTimes.csv");
-        printList(flow, "data/" + N + "_" + BASE + "e-" + EXP + "_flow.csv");
 
     }
 
@@ -205,9 +203,8 @@ public class Simulation {
         }
     }
 
-    private static void saveMeasures(double outParticlesSize) {
+    private static void saveMeasures() {
         kineticEnergy.add(particles.parallelStream().map(Particle::kineticEnergy).reduce(0.0, (d1, d2) -> d1 + d2));
-        flow.add(outParticlesSize);
     }
 
     private static void writeState(PrintWriter writer) {
