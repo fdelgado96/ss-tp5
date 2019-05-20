@@ -2,17 +2,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-PATHS_TO_MEASUREMENTS = [
-    '../data/0.15_70.0_5e-5_exitTimes.csv',
-    '../data/0.2_70.0_5e-5_exitTimes.csv'
+PATHS = [
+    '../data/0.15_70.0_3e-6_exitTimes.csv'
 ]
-Labels = [
-    'D = 15cm',
-    'D = 20cm'
+LABELS = [
+    'D = 15cm'
 ]
 
 NUMBER_OF_WINDOWS = 50
-WINDOW_SIZE = 50
+WINDOW_SIZE = 500
 
 def get_sliding_window_measures(path):
     times = np.genfromtxt(path)
@@ -27,7 +25,7 @@ def get_sliding_window_measures(path):
     deltas = np.diff(times)
 
     #iterar el sliding window
-    for i in range(0, NUMBER_OF_WINDOWS):
+    for i in range(0, total_windows):
         sliding_window_means[i] = np.mean(deltas[i:i+WINDOW_SIZE-1])
         sliding_window_stds[i] = np.std(deltas[i:i+WINDOW_SIZE-1])
 
@@ -35,12 +33,13 @@ def get_sliding_window_measures(path):
 
 
 total_measures = []
-for path in PATHS_TO_MEASUREMENTS:
-    times, means, stds = get_sliding_window_measures(path)
-    plt.errorbar(times, means, yerr=stds, fmt='bo', markersize=3, label='Holis')
+for i in range(len(PATHS)):
+    times, means, stds = get_sliding_window_measures(PATHS[i])
+    plt.errorbar(times, means, fmt='bo', markersize=3, label=LABELS[i])
     print('last mean: {:.2E}'.format(means[-1]))
     print('last std: {:.2E}'.format(stds[-1]))
 
 plt.ylabel('Caudal en partículas por segundo')
 plt.xlabel('Tiempo [s]')
 plt.legend()
+plt.show()
