@@ -5,10 +5,10 @@ import java.util.stream.IntStream;
 
 public class Simulation {
 
-    private static final int    BASE = 3;                       // DT base
-    private static final int    EXP = 6;                        // DT exp
+    private static final int    BASE = 1;                       // DT base
+    private static final int    EXP = 5;                        // DT exp
     private static final double DT = BASE * Math.pow(10, -EXP); // Step delta time
-    private static final int    N = 500;                         // Number of particles
+    private static final int    N = 400;                         // Number of particles
     private static final double G = -10;                        // Gravity on 'y' axis
     private static final double WIDTH = 0.4;
     private static final double HEIGHT = 1;
@@ -20,7 +20,7 @@ public class Simulation {
     private static final double STEP_PRINT_DT = 0.1;
     private static final double ANIMATION_DT = 1.0 / 60;          // DT to save a simulation state
     private static final double MEASURE_DT = 60;                // DT to save a simulation state
-    private static final double MAX_SIM_TIME = 10;             // Max simulation time in seconds
+    private static final double MAX_SIM_TIME = 5;             // Max simulation time in seconds
 
     private static double              simTime = 0; //Simulation time in seconds
     private static List<Particle> particles = new ArrayList<>(N);
@@ -47,7 +47,7 @@ public class Simulation {
 
         while(simTime < MAX_SIM_TIME) {
             // Clear forces and add interaction forces with walls to particles and add G force too
-            particles.stream().parallel().forEach(p -> {
+            particles.parallelStream().forEach(p -> {
                 p.clearForces();
                 p.fy += p.m * G;
                 for (Wall w : walls) {
@@ -58,7 +58,7 @@ public class Simulation {
             });
 
             // Add interaction forces between particles
-            IntStream.range(0, particles.size()).parallel().forEach(i -> {
+            IntStream.range(0, particles.size()).forEach(i -> {
                 Particle pi = particles.get(i);
 
                 for (int j = i + 1; j < particles.size(); j++) {
@@ -71,7 +71,7 @@ public class Simulation {
             });
 
             // Move particles a DT time and filter the ones that are out
-            outParticles = particles.stream().parallel().peek(p -> {
+            outParticles = particles.parallelStream().peek(p -> {
                 p.move(DT);
             }).filter(Simulation::isOut).collect(Collectors.toList());
 

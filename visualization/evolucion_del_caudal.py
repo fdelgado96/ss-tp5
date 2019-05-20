@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 PATHS = [
-    '../data/0.15_70.0_3e-6_exitTimes.csv'
+    '../data/0.15_70.0_1e-5_exitTimes.csv'
 ]
 LABELS = [
     'D = 15cm'
