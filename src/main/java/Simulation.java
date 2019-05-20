@@ -31,6 +31,7 @@ public class Simulation {
 
     private static List<List<Particle>> savedStates = new ArrayList<>();
     private static ArrayList<Double> kineticEnergy = new ArrayList<>();
+    private static ArrayList<Double> flow = new ArrayList<>();
 
     public static void main(String[] args) throws Exception{
         PrintWriter writer = new PrintWriter("data/" + N + "_" + BASE + "e-" + EXP + "_simulation.xyz");
@@ -38,7 +39,7 @@ public class Simulation {
         initWalls(WIDTH, HEIGHT, SLIT_SIZE);
         initParticles(N, WIDTH, HEIGHT, MIN_PARTICLE_R, MAX_PARTICLE_R);
 
-        saveMeasures();
+        saveMeasures(0);
         writeState(writer);
 
         int lastFrame = 1, lastMeasure = 1, lastStepPrint = 0;
@@ -96,17 +97,18 @@ public class Simulation {
             }
 
             if (simTime / MEASURE_DT > lastMeasure) {
-                saveMeasures();
+                saveMeasures(outParticles.size());
                 lastMeasure++;
             }
         }
-        saveMeasures();
+        saveMeasures(outParticles.size());
         System.out.println("Finished simulation");
 
         System.out.println("Printing measures");
         writer.close();
 
         printList(kineticEnergy, "data/" + N + "_" + BASE + "e-" + EXP + "_kineticEnergy.csv");
+        printList(flow, "data/" + N + "_" + BASE + "e-" + EXP + "_flow.csv");
 
     }
 
@@ -201,8 +203,9 @@ public class Simulation {
         }
     }
 
-    private static void saveMeasures() {
+    private static void saveMeasures(double outParticlesSize) {
         kineticEnergy.add(particles.parallelStream().map(Particle::kineticEnergy).reduce(0.0, (d1, d2) -> d1 + d2));
+        flow.add(outParticlesSize);
     }
 
     private static void writeState(PrintWriter writer) {
