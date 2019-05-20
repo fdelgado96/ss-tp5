@@ -6,13 +6,13 @@ import java.util.stream.IntStream;
 public class Simulation {
 
     private static final int    BASE = 5;                       // DT base
-    private static final int    EXP = 6;                        // DT exp
+    private static final int    EXP = 5;                        // DT exp
     private static final double DT = BASE * Math.pow(10, -EXP); // Step delta time
     private static final int    N = 100;                         // Number of particles
     private static final double G = -10;                        // Gravity on 'y' axis
     private static final double WIDTH = 0.3;
     private static final double HEIGHT = 1;
-    private static final double SLIT_SIZE = 0.15;
+    private static final double SLIT_SIZE = 0.20;
     private static final double k = 10e5;
     private static final double gamma = 70;
     private static final double MIN_PARTICLE_R = 0.01;          // Min particle radius
@@ -30,7 +30,8 @@ public class Simulation {
     private static ArrayList<Double> kineticEnergy = new ArrayList<>();
 
     public static void main(String[] args) throws Exception{
-        PrintWriter writer = new PrintWriter("data/" + N + "_" + BASE + "e-" + EXP + "_simulation.xyz");
+        System.out.println(String.format("N: %d", N));
+        PrintWriter writer = new PrintWriter("data/" + SLIT_SIZE + "_" + gamma + "_" + BASE + "e-" + EXP + "_simulation.xyz");
 
         initWalls(WIDTH, HEIGHT, SLIT_SIZE);
         initParticles(N, WIDTH, HEIGHT, MIN_PARTICLE_R, MAX_PARTICLE_R);
@@ -103,12 +104,13 @@ public class Simulation {
         }
         saveMeasures();
         System.out.println("Finished simulation");
-
-        System.out.println("Printing measures");
         writer.close();
 
-        printList(kineticEnergy, "data/" + N + "_" + BASE + "e-" + EXP + "_kineticEnergy.csv");
-        printList(exitTimes, "data/" + N + "_" + BASE + "e-" + EXP + "_exitTimes.csv");
+        System.out.println("Printing measures");
+        System.out.println(String.format("Reinserted particles: %d", exitTimes.size()));
+
+        printList(kineticEnergy, "data/" + SLIT_SIZE + "_" + gamma + "_" + BASE + "e-" + EXP + "_kineticEnergy.csv");
+        printList(exitTimes, "data/" + SLIT_SIZE + "_" + gamma + "_" + BASE + "e-" + EXP + "_exitTimes.csv");
 
     }
 
