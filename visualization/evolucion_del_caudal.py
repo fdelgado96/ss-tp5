@@ -10,7 +10,7 @@ LABELS = [
 ]
 
 NUMBER_OF_WINDOWS = 50
-WINDOW_SIZE = 500
+WINDOW_SIZE = 50
 
 def get_sliding_window_measures(path):
     times = np.genfromtxt(path)

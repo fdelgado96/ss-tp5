@@ -20,7 +20,7 @@ public class Simulation {
     private static final double STEP_PRINT_DT = 0.1;
     private static final double ANIMATION_DT = 1.0 / 60;          // DT to save a simulation state
     private static final double MEASURE_DT = 60;                // DT to save a simulation state
-    private static final double MAX_SIM_TIME = 5;             // Max simulation time in seconds
+    private static final double MAX_SIM_TIME = 3;             // Max simulation time in seconds
 
     private static double              simTime = 0; //Simulation time in seconds
     private static List<Particle> particles = new ArrayList<>(N);
@@ -162,8 +162,8 @@ public class Simulation {
 
         double fn = -k*overlap - gamma*normalRelVel;
 
-        double fx = fn * w.enx;
-        double fy = fn * w.eny;
+        double fx = fn * w.enx(p);
+        double fy = fn * w.eny(p);
 
 
         p.fx += fx;

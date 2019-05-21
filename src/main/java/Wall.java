@@ -11,22 +11,47 @@ public class Wall {
         this.eny = eny;
     }
 
-    private double particleCenterToWall(Particle particle) {
-//        if (Math.sqrt(Math.pow(particle.x - initialX,  2) + Math.pow(particle.y - initialY, 2)) > particle.r &&
-//            Math.sqrt(Math.pow(particle.x - finalX,  2) + Math.pow(particle.y - finalY, 2)) > particle.r) {
-//            return particle.r+1;
-//        }
-
+    private double particleCenterToWall(Particle p) {
         if (initialX == finalX) {
-            if (particle.y >= initialY && particle.y <= finalY)
-                return Math.abs(particle.x - initialX);
+            if (p.y >= initialY && p.y <= finalY)
+                return Math.abs(p.x - initialX);
             else
-                return particle.r;
+                return p.r;
         } else {
-            if (particle.x >= initialX && particle.x <= finalX)
-                return Math.abs(particle.y - initialY);
-            else
-                return particle.r;
+            double dy = initialY - p.y;
+            if (p.x > finalX) {
+                double dx = finalX - p.x;
+                return Math.sqrt(dx*dx + dy*dy);
+            } else if (p.x < initialX) {
+                double dx = initialX - p.x;
+                return Math.sqrt(dx*dx + dy*dy);
+            } else {
+                return Math.abs(dy);
+            }
+        }
+    }
+
+    public double enx(Particle p) {
+        if (initialX == finalX) {
+            return enx;
+        } else {
+            double dx;
+            if (p.x > finalX) {
+                dx = finalX - p.x;
+            } else if (p.x < initialX) {
+                dx = initialX - p.x;
+            } else {
+                return 0;
+            }
+            return dx/particleCenterToWall(p);
+        }
+    }
+
+    public double eny(Particle p) {
+        if (initialX == finalX) {
+            return eny;
+        } else {
+            return (initialY - p.y) / particleCenterToWall(p);
         }
     }
 
@@ -35,8 +60,8 @@ public class Wall {
         return overlap >= 0 ? overlap : 0;
     }
 
-    public double getNormalRelVel(Particle particle) {
-        return particle.vx * enx + particle.vy * eny;
+    public double getNormalRelVel(Particle p) {
+        return p.vx * enx(p) + p.vy * eny(p);
     }
 
 
