@@ -8,26 +8,27 @@ public class Simulation {
     private static final int    BASE = 1;                       // DT base
     private static final int    EXP = 5;                        // DT exp
     private static final double DT = BASE * Math.pow(10, -EXP); // Step delta time
-    private static final int    N = 400;                         // Number of particles
+    private static final int    N = 600;                        // Number of particles
     private static final double G = -10;                        // Gravity on 'y' axis
     private static final double WIDTH = 0.4;
-    private static final double HEIGHT = 1;
-    private static final double SLIT_SIZE = 0.15;
+    private static final double HEIGHT = 1.5;
+    private static final double SLIT_SIZE = 0;
     private static final double k = 10e5;
-    private static final double gamma = 70;
+    private static final double gamma = 140;
     private static final double MIN_PARTICLE_R = 0.01;          // Min particle radius
     private static final double MAX_PARTICLE_R = 0.015;         // Max particle radius
     private static final double STEP_PRINT_DT = 0.1;
     private static final double ANIMATION_DT = 1.0 / 60;          // DT to save a simulation state
-    private static final double MEASURE_DT = 60;                // DT to save a simulation state
-    private static final double MAX_SIM_TIME = 3;             // Max simulation time in seconds
+    private static final double MEASURE_DT = 1.0 / 10;                // DT to save a simulation state
+    private static final double MAX_SIM_TIME = 10;             // Max simulation time in seconds
 
     private static double              simTime = 0; //Simulation time in seconds
     private static List<Particle> particles = new ArrayList<>(N);
     private static ArrayList<Wall>     walls = new ArrayList<>(4);
 
     private static List<List<Particle>> savedStates = new ArrayList<>();
-    private static ArrayList<Double> kineticEnergy = new ArrayList<>();
+    private static List<Double> kineticEnergy = new LinkedList<>();
+    private static List<Double> times = new LinkedList<>();
 
     public static void main(String[] args) throws Exception{
         System.out.println(String.format("N: %d", N));
@@ -110,6 +111,7 @@ public class Simulation {
         System.out.println(String.format("Reinserted particles: %d", exitTimes.size()));
 
         printList(kineticEnergy, "data/" + SLIT_SIZE + "_" + gamma + "_" + BASE + "e-" + EXP + "_kineticEnergy.csv");
+        printList(times, "data/" + SLIT_SIZE + "_" + gamma + "_" + BASE + "e-" + EXP + "_times.csv");
         printList(exitTimes, "data/" + SLIT_SIZE + "_" + gamma + "_" + BASE + "e-" + EXP + "_exitTimes.csv");
 
     }
@@ -121,7 +123,7 @@ public class Simulation {
         while (!valid) {
             p.x = p.r + Math.random() * (WIDTH - 2 * p.r);
             p.y = (2 + Math.random()) * HEIGHT / 3;
-            valid = particles.stream().parallel().allMatch(p2 -> p2 == p || p2.getOverlap(p) == 0);
+            valid = particles.parallelStream().allMatch(p2 -> p2 == p || p2.getOverlap(p) == 0);
         }
         //particles.add(p);
     }
@@ -148,8 +150,11 @@ public class Simulation {
         double fx = fn * enx;
         double fy = fn * eny;
 
+        double fn_mod = Math.abs(fn);
+        p1.fn += fn_mod;
         p1.fx += fx;
         p1.fy += fy;
+        p2.fn += fn_mod;
         p2.fx -= fx;
         p2.fy -= fy;
     }
@@ -165,7 +170,7 @@ public class Simulation {
         double fx = fn * w.enx(p);
         double fy = fn * w.eny(p);
 
-
+        p.fn += Math.abs(fn);
         p.fx += fx;
         p.fy += fy;
     }
@@ -209,6 +214,7 @@ public class Simulation {
     }
 
     private static void saveMeasures() {
+        times.add(simTime);
         kineticEnergy.add(particles.parallelStream().map(Particle::kineticEnergy).reduce(0.0, (d1, d2) -> d1 + d2));
     }
 

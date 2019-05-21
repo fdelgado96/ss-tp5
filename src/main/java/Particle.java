@@ -2,7 +2,7 @@ import java.util.Locale;
 
 public class Particle {
 
-    public double x, y, vx, vy, fx, fy, m = 0.01, prevX, prevY, r;
+    public double x, y, vx, vy, fx, fy, m = 0.01, prevX, prevY, r, fn, perimeter;
 
     private boolean initialized = false;
     private int id;
@@ -12,6 +12,7 @@ public class Particle {
         this.y = y;
         this.r = r;
         this.id = id;
+        this.perimeter = Math.PI * 2 * r;
     }
 
 
@@ -25,6 +26,7 @@ public class Particle {
     }
 
     public void clearForces() {
+        fn = 0;
         fx = 0;
         fy = 0;
     }
@@ -54,9 +56,6 @@ public class Particle {
             prevX = x - vx * dt;
             prevY = y - vy * dt;
             initialized = true;
-        } else {
-            vx = (x - prevX) / dt;
-            vy = (y - prevY) / dt;
         }
 
         double dt2  = dt*dt;
@@ -67,6 +66,8 @@ public class Particle {
         prevY = y;
         x = nextX;
         y = nextY;
+        vx = (x - prevX) / dt;
+        vy = (y - prevY) / dt;
     }
 
 
@@ -76,7 +77,7 @@ public class Particle {
 
     @Override
     public String toString() {
-        return String.format(Locale.ENGLISH, "%d %.12f %.12f %.4f", id, x, y, r);
+        return String.format(Locale.ENGLISH, "%d %.12f %.12f %.4f %.8f", id, x, y, r, fn/perimeter);
     }
 
 
